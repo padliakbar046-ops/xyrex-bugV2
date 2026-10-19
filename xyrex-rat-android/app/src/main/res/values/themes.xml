@@ -1,7 +1,0 @@
-<resources>
-    <style name="Theme.Xyrex" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">#111111</item>
-        <item name="colorPrimaryDark">#111111</item>
-        <item name="colorAccent">#FFDE00</item>
-    </style>
-</resources>
