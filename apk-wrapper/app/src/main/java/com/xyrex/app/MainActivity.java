@@ -15,7 +15,6 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
         
-        // URL Web XYREX (Railway Online)
         webView.loadUrl("https://xyrex-bugv2-production.up.railway.app");
         webView.setWebViewClient(new WebViewClient());
         

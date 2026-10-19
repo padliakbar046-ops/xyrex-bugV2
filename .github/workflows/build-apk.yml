@@ -20,117 +20,30 @@ jobs:
 
     - name: Install Android SDK (Manual Bypass)
       run: |
-        # Download Android Command Line Tools versi terbaru
         wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
         mkdir -p $HOME/android-sdk/cmdline-tools
         unzip -q cmdline-tools.zip -d $HOME/android-sdk/cmdline-tools
         mv $HOME/android-sdk/cmdline-tools/cmdline-tools $HOME/android-sdk/cmdline-tools/latest
         
-        # Set environment variable
         export ANDROID_HOME=$HOME/android-sdk
         export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
         
-        # Install SDK Platform 34 dan Build Tools
         yes | sdkmanager --licenses > /dev/null 2>&1 || true
         sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools" > /dev/null 2>&1
         
-        # Simpan path ke file .env untuk digunakan step berikutnya
         echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
         echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
 
-    - name: Prepare Gradle Project
+    - name: Setup Gradle Wrapper
       run: |
         cd apk-wrapper
-        
-        # Set lokasi SDK
         echo "sdk.dir=$ANDROID_HOME" > local.properties
-        
-        # Buat file build.gradle (versi stabil 8.7)
-        cat > build.gradle <<'GRADLE'
-        buildscript {
-            repositories {
-                google()
-                mavenCentral()
-            }
-            dependencies {
-                classpath 'com.android.tools.build:gradle:8.7.0'
-            }
-        }
-
-        allprojects {
-            repositories {
-                google()
-                mavenCentral()
-            }
-        }
-
-        task clean(type: Delete) {
-            delete rootProject.buildDir
-        }
-        GRADLE
-
-        # Buat file settings.gradle
-        cat > settings.gradle <<'GRADLE'
-        pluginManagement {
-            repositories {
-                google()
-                mavenCentral()
-                gradlePluginPortal()
-            }
-        }
-        dependencyResolutionManagement {
-            repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-            repositories {
-                google()
-                mavenCentral()
-            }
-        }
-        rootProject.name = "XYREX"
-        include ':app'
-        GRADLE
-
-        # Buat file app/build.gradle
-        mkdir -p app
-        cat > app/build.gradle <<'GRADLE'
-        plugins {
-            id 'com.android.application'
-        }
-
-        android {
-            namespace 'com.xyrex.app'
-            compileSdk 34
-            buildToolsVersion "34.0.0"
-            defaultConfig {
-                applicationId "com.xyrex.app"
-                minSdk 24
-                targetSdk 34
-                versionCode 1
-                versionName "1.0"
-            }
-            compileOptions {
-                sourceCompatibility JavaVersion.VERSION_1_8
-                targetCompatibility JavaVersion.VERSION_1_8
-            }
-        }
-
-        dependencies {
-            implementation 'androidx.appcompat:appcompat:1.6.1'
-        }
-        GRADLE
-
-        # Copy file java dan manifest ke folder app
-        mkdir -p app/src/main/java/com/xyrex/app
-        mkdir -p app/src/main
-        cp java/com/xyrex/app/MainActivity.java app/src/main/java/com/xyrex/app/
-        cp AndroidManifest.xml app/src/main/
-
-        # Setup gradle wrapper
         gradle wrapper --gradle-version 8.7
 
     - name: Build APK
       run: |
         cd apk-wrapper
-        ./gradlew assembleDebug
+        ./gradlew assembleDebug --stacktrace
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
