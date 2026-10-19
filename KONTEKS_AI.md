@@ -6,7 +6,7 @@ Halo AI, ini adalah project **XYREX**, aplikasi berbasis **Node.js (Express + So
 - `server.js` : Entry point utama (Express, Session, Socket.IO).
 - `routes/` : Berisi API backend (auth, chat, pairing, bugnomor, tools, notes, admin).
 - `public/` : Berisi frontend (index.html, style.css, script.js).
-- `data/` : Folder otomatis untuk menyimpan `db.json`, `sessions.db` (jika pakai sqlite), dan sesi `baileys`.
+- `data/` : Folder otomatis untuk menyimpan `db.json` dan sesi `baileys`.
 
 ## 2. Fitur & Aturan Penting yang Sudah Berjalan
 - **Auth**: Login pakai Session Express. Ada fitur Ganti Password di halaman Profile. Role: owner, admin, premium, member. Hanya owner yang bisa hapus user.
@@ -19,13 +19,13 @@ Halo AI, ini adalah project **XYREX**, aplikasi berbasis **Node.js (Express + So
   - `Anime Search`: Ambil data dari AniList GraphQL.
   - `Music Player`: Ambil lagu dari iTunes API.
   - `Web Scanner`: Cek header website.
-  - `DDoS Server`: Layer 7 HTTP flood.
+  - `DDoS Server`: Layer 7 HTTP flood menggunakan `https.request` (HTTP/1.1). Metode ini lebih stabil dan jarang crash di Node.js dibandingkan `http2`.
 - **Notes**: Fitur catatan user.
 - **Admin**: Buat/hapus akun user lain.
 - **Settings**: Toggle Dark/Light mode (disimpan di localStorage).
 
 ## 3. Aturan Desain UI/UX (Frontend)
-- Menggunakan CSS Variables (di `style.css`) untuk tema Light dan Dark Mode.
+- Menggunakan CSS Variables (di `style.css`) untuk tema Light dan Dark Mode. Semua elemen wajib pakai variabel agar tidak bertumpuk saat ganti tema.
 - Warna utama: Biru (`#2563eb`), Aksen Emas (`#eab308`), Merah (`#ef4444`), Border Hitam (`#0f172a`).
 - Ikon menggunakan SVG inline.
 - Pilihan Tipe Bug menggunakan *Carousel* (geser horizontal).
