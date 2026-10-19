@@ -1,30 +1,31 @@
 # KONTEKS PROJECT XYREX (Baca Ini Dulu Sebelum Ngoding)
 
-Halo AI, ini adalah project **XYREX**, aplikasi berbasis **Node.js (Express + Socket.IO + Baileys)**. Tampilan menggunakan gaya Neo-Brutalism.
+Halo AI, ini adalah project **XYREX**, aplikasi berbasis **Node.js (Express + Socket.IO + Baileys)**. Tampilan menggunakan gaya **Modern Clean Neo-Brutalism**.
 
 ## 1. Struktur Folder Utama
 - `server.js` : Entry point utama (Express, Session, Socket.IO).
 - `routes/` : API backend (auth, chat, pairing, bugnomor, tools, notes, admin).
 - `public/` : Frontend (index.html, style.css, script.js).
+- `apk-wrapper/` : Folder untuk build APK Android (WebView).
 - `data/` : Folder penyimpanan `db.json`, `ddos_logs.json`, dan folder sesi `session_<userId>`.
 
 ## 2. Fitur & Aturan Penting
 - **Auth**: Login pakai Session Express. Role: owner, admin, premium, member.
-- **Pairing WhatsApp**: Multi-user. Setiap user punya folder sesi sendiri (`session_<id>`). QR di-generate pakai `qrcode`. **Metode yang disarankan adalah Pairing Code (bukan QR)** karena lebih stabil.
+- **Pairing WhatsApp**: Multi-user. Setiap user punya folder sesi sendiri (`session_<id>`). **Metode yang disarankan adalah Pairing Code (bukan QR)**.
 - **Bug Nomor (`routes/bugnomor.js`)**: 
   - `Foreclose`: Parser killer (RTL + null byte).
-  - `Crash`: Location crasher (koordinat invalid).
-  - `Crash iOS`: Audio bug (header WAV rusak).
+  - `Crash`: Location crasher.
+  - `Crash iOS`: Audio bug.
   - `Delay`: Sticker bomb.
-  - Bug Grup SUDAH DIHAPUS.
 - **Tools**:
-  - `DDoS Server`: Layer 7 (HTTP/2 Rapid Reset). **Hanya untuk Premium ke atas**. Ada log di `data/ddos_logs.json` (khusus Owner).
-  - Tools lain: Video Downloader, Gmail Sementara, Anime Search, Music Player, Web Scanner.
-- **Settings**: Toggle Dark/Light mode.
+  - `DDoS Server`: Layer 7 (HTTP/2 Rapid Reset). **Hanya untuk Premium ke atas**.
+  - Video Downloader, Gmail Sementara, Anime Search, Music Player, Web Scanner.
+- **Settings**: Toggle Dark/Light mode (disimpan di localStorage).
 
 ## 3. Aturan Desain UI/UX (Frontend)
-- Menggunakan CSS Variables untuk Light & Dark Mode. Wajib pakai variabel agar tidak bentrok.
-- Warna: Biru (`#2563eb`), Emas (`#eab308`), Merah (`#ef4444`), Border Hitam (`#0f172a`).
+- Menggunakan **CSS Variables** di `style.css` untuk tema Light & Dark Mode. Warna wajib menggunakan `var(--nama-variabel)`.
+- Warna: Biru (`#2563eb`), Merah (`#ef4444`), Emas (`#eab308`), Border Tema (`--border-color`).
+- **Dilarang** menggunakan efek gradient text (seperti ungu di role admin) karena terlihat norak. Gunakan warna solid.
 - Pilihan Tipe Bug menggunakan *Carousel* (geser horizontal).
 - Pop-up peringatan pakai custom modal.
 
