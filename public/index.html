@@ -88,7 +88,7 @@
       <pre id="pairCodeBox" class="out"></pre>
     </div>
 
-    <!-- MENU BUG (HANYA BUG NOMOR) -->
+    <!-- MENU BUG -->
     <div class="view" data-view="bug">
       <div class="bug-carousel" style="justify-content: center;">
         <a href="#bug/xyrex" class="bug-slide" style="text-decoration:none;">
@@ -101,7 +101,7 @@
       </div>
     </div>
 
-    <!-- HALAMAN BUG NOMOR DETAIL -->
+    <!-- HALAMAN BUG NOMOR -->
     <div class="view" data-view="bug/xyrex">
       <a href="#bug" class="back-btn">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><polyline points="15 18 9 12 15 6"></polyline></svg>
@@ -186,7 +186,7 @@
         <a href="#tools/anime" class="menu-btn tool-anime"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg><span>Anime Search</span></a>
         <a href="#tools/music" class="menu-btn tool-music"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg><span>Music Player</span></a>
         <a href="#tools/scan" class="menu-btn tool-scan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><span>Web Scanner</span></a>
-        <a href="#tools/ddos" class="menu-btn tool-ddos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg><span>DDoS Server</span></a>
+        <a href="#tools/ddos" id="btnMenuDdos" class="menu-btn tool-ddos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg><span>DDoS Server</span></a>
       </div>
     </div>
 
@@ -239,33 +239,42 @@
       <pre id="scanOut" class="out"></pre>
     </div>
 
+    <!-- DDOS -->
     <div class="view" data-view="tools/ddos">
       <a href="#tools" class="back-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><polyline points="15 18 9 12 15 6"></polyline></svg> Kembali</a>
       <h2>DDoS Server</h2>
-      <div class="info-card" style="display:block; padding:16px;">
-        <label>Target URL</label><input id="ddosTarget" placeholder="https://target.com">
-        <div class="row" style="margin-top:12px;">
-          <input id="ddosDur" type="number" value="60" placeholder="Durasi (Maks 120)">
-          <input id="ddosThr" type="number" value="100" placeholder="Threads (Maks 200)">
-        </div>
+      <div id="ddosBlocked" class="info-card hidden" style="background:#fee2e2; border-color:#ef4444; text-align:center; padding:20px; flex-direction:column;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" style="width:40px;height:40px;margin-bottom:10px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        <h3 style="color:#ef4444;">Akses Ditolak</h3>
+        <p style="font-size:13px; color:#7f1d1d; margin-top:6px;">Fitur DDoS hanya tersedia untuk role Premium, Admin, dan Owner.</p>
       </div>
-      <div class="row" style="display:flex; gap:10px;">
-        <button class="neo-btn primary" id="btnStartDdos" onclick="startDdos()" style="flex:1;">START</button>
-        <button class="neo-btn danger" id="btnStopDdos" onclick="stopDdos()" style="flex:1;">STOP</button>
-      </div>
-      <div id="ddosOut" class="stat-container hidden">
-        <div class="stat-grid">
-          <div class="stat-box"><div class="stat-label">SENT</div><div class="stat-value" id="statSent">0</div></div>
-          <div class="stat-box"><div class="stat-label">RPS</div><div class="stat-value" id="statRps">0.0</div></div>
-          <div class="stat-box"><div class="stat-label">ELAPSED</div><div class="stat-value" id="statElapsed">0s</div></div>
+
+      <div id="ddosForm">
+        <div class="info-card" style="display:block; padding:16px;">
+          <label>Target URL</label><input id="ddosTarget" placeholder="https://target.com">
+          <div class="row" style="margin-top:12px;">
+            <input id="ddosDur" type="number" value="60" placeholder="Durasi (Maks 120)">
+            <input id="ddosThr" type="number" value="100" placeholder="Threads (Maks 200)">
+          </div>
         </div>
-        <div class="stat-grid">
-          <div class="stat-box"><div class="stat-label">OK</div><div class="stat-value text-green" id="statOk">0</div></div>
-          <div class="stat-box"><div class="stat-label">ERR</div><div class="stat-value text-red" id="statErr">0</div></div>
-          <div class="stat-box"><div class="stat-label">HELD</div><div class="stat-value" id="statHeld">0</div></div>
+        <div class="row" style="display:flex; gap:10px;">
+          <button class="neo-btn primary" id="btnStartDdos" onclick="startDdos()" style="flex:1;">START</button>
+          <button class="neo-btn danger" id="btnStopDdos" onclick="stopDdos()" style="flex:1;">STOP</button>
         </div>
-        <div class="progress-wrap"><div class="progress-bar" id="ddosProgress" style="width: 0%;">0%</div></div>
-        <div class="stat-footer" id="statStatus">Menunggu response...</div>
+        <div id="ddosOut" class="stat-container hidden">
+          <div class="stat-grid">
+            <div class="stat-box"><div class="stat-label">SENT</div><div class="stat-value" id="statSent">0</div></div>
+            <div class="stat-box"><div class="stat-label">RPS</div><div class="stat-value" id="statRps">0.0</div></div>
+            <div class="stat-box"><div class="stat-label">ELAPSED</div><div class="stat-value" id="statElapsed">0s</div></div>
+          </div>
+          <div class="stat-grid">
+            <div class="stat-box"><div class="stat-label">OK</div><div class="stat-value text-green" id="statOk">0</div></div>
+            <div class="stat-box"><div class="stat-label">ERR</div><div class="stat-value text-red" id="statErr">0</div></div>
+            <div class="stat-box"><div class="stat-label">HELD</div><div class="stat-value" id="statHeld">0</div></div>
+          </div>
+          <div class="progress-wrap"><div class="progress-bar" id="ddosProgress" style="width: 0%;">0%</div></div>
+          <div class="stat-footer" id="statStatus">Menunggu response...</div>
+        </div>
       </div>
     </div>
 
@@ -293,6 +302,13 @@
       </div>
       <button class="neo-btn primary" onclick="createUser()">Buat Akun</button>
       <div id="userList" style="margin-top:16px;"></div>
+
+      <!-- LOG DDOS KHUSUS OWNER -->
+      <div id="ddosLogSection" class="hidden" style="margin-top:24px;">
+        <h2 style="font-size:18px; margin-bottom:12px; color:var(--danger);">Riwayat Serangan DDoS (Owner)</h2>
+        <button class="neo-btn" onclick="loadDdosLogs()">Refresh Log</button>
+        <div id="ddosLogList" style="margin-top:12px; display:flex; flex-direction:column; gap:8px;"></div>
+      </div>
     </div>
 
     <!-- SETTINGS -->

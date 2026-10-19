@@ -71,12 +71,28 @@ function router() {
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.dataset.view === hash));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.nav === view));
 
-  if (view === 'admin') loadUsers();
+  if (view === 'admin') {
+    loadUsers();
+    if (currentUser.role === 'owner') {
+      document.getElementById('ddosLogSection').classList.remove('hidden');
+      loadDdosLogs();
+    } else {
+      document.getElementById('ddosLogSection').classList.add('hidden');
+    }
+  }
   if (view === 'notes') loadNotes();
   if (view === 'settings') loadProfile();
   
   if (view === 'bug' || view === 'bug/xyrex') {
     loadSenderStatus();
+  }
+  
+  // VALIDASI ROLE SAAT MASUK HALAMAN DDOS
+  if (view === 'tools/ddos') {
+    if (currentUser.role === 'member') {
+      location.hash = '#tools';
+      return customAlert('Akses Ditolak', 'Fitur DDoS hanya tersedia untuk role Premium, Admin, dan Owner.');
+    }
   }
 }
 window.addEventListener('hashchange', router);
@@ -103,6 +119,19 @@ function enterApp() {
     const ownerOption = Array.from(roleSelect.options).find(opt => opt.value === 'owner');
     if (ownerOption) {
       ownerOption.style.display = (currentUser.role === 'owner') ? '' : 'none';
+    }
+  }
+
+  // KUNCI TOMBOL DDOS + INTERSEPT KLIK
+  const btnDdos = document.getElementById('btnMenuDdos');
+  if (btnDdos) {
+    if (currentUser.role === 'member') {
+      btnDdos.style.opacity = '0.5';
+      btnDdos.href = 'javascript:void(0)'; // Matikan link
+      btnDdos.onclick = (e) => {
+        e.preventDefault();
+        customAlert('Akses Ditolak', 'Fitur DDoS hanya tersedia untuk role Premium, Admin, dan Owner. Silakan hubungi Owner untuk upgrade akun.');
+      };
     }
   }
 
@@ -137,7 +166,6 @@ async function loadSenderStatus() {
   if (!r.ok) return;
   
   const globalCount = r.globalSenders || 0;
-  
   const gCount = document.getElementById('globalCount');
   if (gCount) gCount.textContent = globalCount;
 
@@ -384,8 +412,8 @@ async function startDdos() {
   target = target.replace(/[, ]+$/, "");
 
   if (!target) return customAlert('Target Kosong', 'Isi URL target terlebih dahulu.');
-  if (!target.startsWith('http://') && !target.startsWith('https://')) {
-    return customAlert('URL Salah', 'URL harus diawali http:// atau https://');
+  if (!target.startsWith('https://')) {
+    return customAlert('URL Salah', 'URL harus diawali https://');
   }
 
   if (duration > 120) return customAlert('Batas Maksimal', 'Durasi maksimal adalah 120 detik.');
@@ -486,6 +514,24 @@ async function delUser(id) {
   if (!r.ok) return customAlert('Gagal', r.msg);
   customAlert('Sukses', 'Akun dihapus.');
   loadUsers();
+}
+
+async function loadDdosLogs() {
+  const r = await api('/tools/ddos/logs');
+  const list = document.getElementById('ddosLogList');
+  if (!r.ok) { list.innerHTML = '<p style="color:red;">Gagal load log.</p>'; return; }
+  
+  if (r.logs.length === 0) {
+    list.innerHTML = '<p style="font-size:12px; color:var(--text-muted);">Belum ada serangan DDoS.</p>';
+    return;
+  }
+
+  list.innerHTML = r.logs.map(log => `
+    <div style="background:var(--card-bg); border:2px solid var(--danger); border-radius:8px; padding:10px; font-size:12px;">
+      <b style="color:var(--danger);">${log.user}</b> menyerang <b style="color:var(--primary);">${log.target}</b>
+      <br><span style="color:var(--text-muted);">${new Date(log.time).toLocaleString()}</span>
+    </div>
+  `).join('');
 }
 
 (async () => {
