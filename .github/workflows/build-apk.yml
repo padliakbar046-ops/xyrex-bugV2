@@ -1,0 +1,62 @@
+name: Build XYREX APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v2
+
+    - name: Build with Gradle
+      run: |
+        cd apk-wrapper
+        # Setup Gradle wrapper dan build.gradle secara otomatis
+        echo "sdk.dir=$ANDROID_HOME" > local.properties
+        
+        # Buat file build.gradle sementara
+        cat > build.gradle <<'GRADLE'
+        plugins {
+            id 'com.android.application'
+        }
+        android {
+            namespace 'com.xyrex.app'
+            compileSdk 34
+            defaultConfig {
+                applicationId "com.xyrex.app"
+                minSdk 24
+                targetSdk 34
+                versionCode 1
+                versionName "1.0"
+            }
+            compileOptions {
+                sourceCompatibility JavaVersion.VERSION_1_8
+                targetCompatibility JavaVersion.VERSION_1_8
+            }
+        }
+        dependencies {
+            implementation 'androidx.appcompat:appcompat:1.6.1'
+        }
+        GRADLE
+        
+        # Gradle wrapper
+        gradle wrapper
+        ./gradlew assembleDebug
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: XYREX-App
+        path: apk-wrapper/app/build/outputs/apk/debug/app-debug.apk
