@@ -56,12 +56,7 @@ function router() {
   if (view === 'notes') loadNotes();
   if (view === 'settings') loadProfile();
   if (view === 'bug' || view === 'bug/xyrex') loadSenderStatus();
-  
-  // Validasi rute masuk (jika user iseng ketik URL manual)
-  if (view === 'tools/ddos' && currentUser.role === 'member') { 
-    location.hash = '#tools'; 
-    customAlert('Akses Ditolak', 'Fitur DDoS khusus Premium ke atas.'); 
-  }
+  if (view === 'tools/ddos' && currentUser.role === 'member') { location.hash = '#tools'; customAlert('Akses Ditolak', 'Fitur DDoS khusus Premium ke atas.'); }
 }
 window.addEventListener('hashchange', router);
 
@@ -89,14 +84,11 @@ function enterApp() {
   if (btnDdos) {
     if (currentUser.role === 'member') {
       btnDdos.style.opacity = '0.5';
-      // Jangan pakai pointer-events: none agar tetap bisa diklik
       btnDdos.removeAttribute('href'); 
-      btnDdos.style.cursor = 'pointer'; // Ubah kursor jadi tangan
-      
-      // Timpa event onclick bawaan browser dengan Custom Alert
+      btnDdos.style.cursor = 'pointer'; 
       btnDdos.onclick = (e) => {
         e.preventDefault();
-        customAlert('Akses Ditolak', 'Fitur DDoS hanya tersedia untuk role Premium, Admin, dan Owner. Silakan hubungi Owner untuk upgrade akun.');
+        customAlert('Akses Ditolak', 'Fitur DDoS hanya tersedia untuk role Premium, Admin, dan Owner.');
       };
     } else {
       btnDdos.style.opacity = '1';
@@ -254,19 +246,216 @@ async function sendBug() {
   customAlert('Serangan Dimulai', `Bug tipe ${type.toUpperCase()} berhasil dikirim ke ${target}.`);
 }
 
-async function toolVideo() { /* ... */ }
-async function toolGmail() { /* ... */ }
-async function toolAnime() { /* ... */ }
-async function toolMusic() { /* ... */ }
-async function toolScan() { /* ... */ }
-async function startDdos() { /* ... */ }
-async function stopDdos() { /* ... */ }
-async function addNote() { /* ... */ }
-async function loadNotes() { /* ... */ }
-async function createUser() { /* ... */ }
-async function loadUsers() { /* ... */ }
-async function delUser(id) { /* ... */ }
-async function loadDdosLogs() { /* ... */ }
+/* TOOLS */
+async function toolVideo() {
+  const url = document.getElementById('videoUrl').value.trim();
+  const out = document.getElementById('videoOut');
+  const resultBox = document.getElementById('videoResultBox');
+  out.textContent = 'Memproses video...';
+  resultBox.classList.add('hidden');
+  const r = await api('/tools/video', { method: 'POST', body: { url } });
+  if (!r.ok) { out.textContent = 'Gagal.'; return customAlert('Gagal', r.msg); }
+  out.textContent = '';
+  if (r.result && r.result.video) {
+    resultBox.classList.remove('hidden');
+    document.getElementById('videoTitle').textContent = r.result.title;
+    document.getElementById('videoPlayer').src = r.result.video;
+    const dl = document.getElementById('videoDownloadBtn');
+    const safeTitle = (r.result.title || 'video').replace(/[^a-z0-9]/gi, '_').substring(0, 20);
+    dl.href = `/api/tools/download?url=${encodeURIComponent(r.result.video)}&filename=${safeTitle}.mp4`;
+    dl.removeAttribute('target');
+    dl.removeAttribute('download');
+  } else { out.textContent = JSON.stringify(r, null, 2); }
+}
+
+async function toolGmail() {
+  const card = document.getElementById('gmailCard');
+  const res = document.getElementById('gmailResult');
+  const pass = document.getElementById('gmailPass');
+  card.classList.remove('hidden');
+  res.textContent = '...'; pass.textContent = '...';
+  const r = await api('/tools/gmail');
+  if (!r.ok) { res.textContent = 'Gagal'; return; }
+  res.textContent = r.email; pass.textContent = r.password;
+}
+
+async function toolAnime() {
+  const q = document.getElementById('animeQuery').value.trim() || 'naruto';
+  const grid = document.getElementById('animeGrid');
+  grid.innerHTML = '<p style="font-weight:bold; grid-column:span 2; color:var(--text-muted);">Mencari...</p>';
+  
+  const r = await api('/tools/anime?q=' + encodeURIComponent(q));
+  if (!r.ok) {
+    grid.innerHTML = `<p style="color:var(--danger); grid-column:span 2; font-weight:bold;">${r.msg}</p>`;
+    return customAlert('Gagal Anime', r.msg);
+  }
+  
+  grid.innerHTML = '';
+  r.data.forEach(a => {
+    const title = a.title.english || a.title.romaji;
+    grid.innerHTML += `<div class="anime-card"><img src="${a.coverImage.large}"><div class="info"><b>${title}</b>ID: ${a.id}</div></div>`;
+  });
+}
+
+async function toolMusic() {
+  const q = document.getElementById('musicQuery').value.trim() || 'lofi';
+  const list = document.getElementById('musicList');
+  list.innerHTML = '<p style="font-weight:bold; color:var(--text-muted);">Mencari...</p>';
+  
+  const r = await api('/tools/music?q=' + encodeURIComponent(q));
+  if (!r.ok) {
+    list.innerHTML = `<p style="color:var(--danger); font-weight:bold;">${r.msg}</p>`;
+    return customAlert('Gagal Musik', r.msg);
+  }
+  
+  const tracks = r.data.filter(x => x.previewUrl);
+  if (!tracks.length) return list.innerHTML = '<p style="font-weight:bold; color:var(--text-muted);">Lagu tidak ditemukan.</p>';
+  
+  list.innerHTML = '';
+  tracks.forEach(t => {
+    list.innerHTML += `<div class="music-card"><div class="music-header"><img src="${t.artworkUrl100}"><div class="music-info"><b>${t.trackName}</b><span>${t.artistName}</span></div></div><audio controls src="${t.previewUrl}"></audio></div>`;
+  });
+}
+
+async function toolScan() {
+  const url = document.getElementById('scanUrl').value.trim();
+  const out = document.getElementById('scanOut');
+  if (!url) return customAlert('Kosong', 'Masukkan URL.');
+  out.textContent = 'Memindai (maks 8 detik)...';
+  try {
+    const r = await api('/tools/scan', { method: 'POST', body: { url } });
+    if (!r.ok) { out.textContent = 'Gagal: ' + r.msg; return customAlert('Gagal', r.msg); }
+    let html = `<b>Target:</b> ${r.url}\n<b>Status:</b> ${r.status}\n<b>Server:</b> ${r.server}\n\n--- TEMUAN ---\n`;
+    if (!r.findings.length) html += 'Aman (Header lengkap).\n';
+    r.findings.forEach(f => html += `- ${f}\n`);
+    out.innerHTML = `<pre style="white-space:pre-wrap;">${html}</pre>`;
+  } catch(e) { out.textContent = 'Error koneksi.'; }
+}
+
+async function startDdos() {
+  let target = document.getElementById('ddosTarget').value.trim();
+  const duration = +document.getElementById('ddosDur').value;
+  const threads = +document.getElementById('ddosThr').value;
+  target = target.replace(/[, ]+$/, "");
+  if (!target) return customAlert('Target Kosong', 'Isi URL target terlebih dahulu.');
+  if (!target.startsWith('https://')) return customAlert('URL Salah', 'URL harus diawali https://');
+  if (duration > 120) return customAlert('Batas Maksimal', 'Durasi maksimal adalah 120 detik.');
+  if (threads > 200) return customAlert('Batas Maksimal', 'Threads maksimal adalah 200.');
+
+  document.getElementById('btnStartDdos').disabled = true;
+  document.getElementById('ddosOut').classList.remove('hidden');
+  
+  document.getElementById('statSent').textContent = '0';
+  document.getElementById('statRps').textContent = '0.0';
+  document.getElementById('statElapsed').textContent = '0s';
+  document.getElementById('statOk').textContent = '0';
+  document.getElementById('statErr').textContent = '0';
+  document.getElementById('statHeld').textContent = '0';
+  document.getElementById('ddosProgress').style.width = '0%';
+  document.getElementById('ddosProgress').textContent = '0%';
+  document.getElementById('statStatus').textContent = 'Menyiapkan serangan...';
+  
+  const r = await api('/tools/ddos', { method: 'POST', body: { target, duration, threads } });
+  if (!r.ok) {
+    document.getElementById('btnStartDdos').disabled = false;
+    document.getElementById('statStatus').textContent = 'Gagal: ' + r.msg;
+    return customAlert('Gagal Memulai', r.msg);
+  }
+}
+
+socket.off('ddos:stats'); 
+socket.on('ddos:stats', s => {
+  const elapsedSec = (Date.now() - s.startedAt) / 1000;
+  const rps = elapsedSec > 0 ? (s.requests / elapsedSec).toFixed(1) : '0.0';
+  const dur = +document.getElementById('ddosDur').value || 60;
+  let percent = Math.min((elapsedSec / dur) * 100, 100).toFixed(0);
+  
+  document.getElementById('statSent').textContent = s.requests;
+  document.getElementById('statRps').textContent = rps;
+  document.getElementById('statElapsed').textContent = Math.floor(elapsedSec) + 's';
+  document.getElementById('statOk').textContent = s.success;
+  document.getElementById('statErr').textContent = s.failed;
+  document.getElementById('statHeld').textContent = s.activeSockets || 0;
+  
+  document.getElementById('ddosProgress').style.width = percent + '%';
+  document.getElementById('ddosProgress').textContent = percent + '%';
+  document.getElementById('statStatus').textContent = 'Menunggu response...';
+});
+
+socket.off('ddos:done');
+socket.on('ddos:done', s => {
+  document.getElementById('btnStartDdos').disabled = false;
+  document.getElementById('statStatus').textContent = '[DONE] Serangan Selesai.';
+  document.getElementById('ddosProgress').style.width = '100%';
+  document.getElementById('ddosProgress').textContent = '100%';
+});
+
+async function stopDdos() {
+  document.getElementById('statStatus').textContent = 'Menghentikan...';
+  const r = await api('/tools/ddos/stop', { method: 'POST' });
+  if (!r.ok) customAlert('Gagal Stop', r.msg);
+}
+
+async function addNote() {
+  const text = document.getElementById('noteText').value.trim();
+  const music = document.getElementById('noteMusic').value.trim();
+  if (!text) return customAlert('Kosong', 'Isi catatan.');
+  const r = await api('/notes', { method: 'POST', body: { username: currentUser.username, text, music } });
+  if (!r.ok) return customAlert('Gagal', r.msg);
+  loadNotes();
+}
+
+async function loadNotes() {
+  const r = await api('/notes');
+  const list = document.getElementById('notesList');
+  if (!list) return;
+  list.innerHTML = (r.notes || []).map(n => `<div class="note-card"><b>${n.username}</b>: ${n.text}</div>`).join('') || '<p class="hint">Belum ada notes.</p>';
+}
+
+async function createUser() {
+  const username = document.getElementById('newUser').value.trim();
+  const password = document.getElementById('newPass').value;
+  const role = document.getElementById('newRole').value;
+  if (!username || !password) return customAlert('Kosong', 'Isi semua field.');
+  const r = await api('/admin/user', { method: 'POST', body: { username, password, role } });
+  if (!r.ok) return customAlert('Gagal', r.msg);
+  customAlert('Sukses', 'Akun dibuat!');
+  loadUsers();
+}
+
+async function loadUsers() {
+  const r = await api('/admin/users');
+  if (!r.ok) return;
+  document.getElementById('userList').innerHTML = r.users.map(u => {
+    const btn = (currentUser.role === 'owner' && u.id !== currentUser.id) ? `<button class="neo-btn danger" style="padding:6px;margin-top:10px;font-size:12px;" onclick="delUser(${u.id})">Hapus</button>` : '';
+    return `<div class="user-card" style="background:var(--card-bg); border:3px solid #000; border-radius:12px; padding:12px; margin-bottom:10px; box-shadow:3px 3px 0 #000;"><b>${u.username}</b> <span style="font-size:12px; color:#ff3333; font-weight:bold;">[${u.role}]</span>${btn}</div>`;
+  }).join('');
+}
+
+async function delUser(id) {
+  const r = await api('/admin/user/' + id, { method: 'DELETE' });
+  if (!r.ok) return customAlert('Gagal', r.msg);
+  customAlert('Sukses', 'Akun dihapus.');
+  loadUsers();
+}
+
+async function loadDdosLogs() {
+  const r = await api('/tools/ddos/logs');
+  const list = document.getElementById('ddosLogList');
+  if (!r.ok) { list.innerHTML = '<p style="color:red;">Gagal load log.</p>'; return; }
+  
+  if (r.logs.length === 0) {
+    list.innerHTML = '<p style="font-size:12px; color:var(--text-muted);">Belum ada serangan DDoS.</p>';
+    return;
+  }
+
+  list.innerHTML = r.logs.map(log => `
+    <div style="background:var(--card-bg); border:2px solid var(--danger); border-radius:8px; padding:10px; font-size:12px;">
+      <b style="color:var(--danger);">${log.user}</b> menyerang <b style="color:var(--primary);">${log.target}</b>
+      <br><span style="color:var(--text-muted);">${new Date(log.time).toLocaleString()}</span>
+    </div>
+  `).join('');
+}
 
 (async () => {
   loadTheme();
